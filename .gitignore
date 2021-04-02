@@ -4,3 +4,5 @@ export_presets.cfg
 bin/
 build/
 lib/
+git_api.gdnlib
+git_api.gdns
