@@ -8,9 +8,14 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "",
+"class": "GitAPI",
+"language": "NativeScript",
+"path": "res://git_api.gdns"
+} ]
 _global_script_class_icons={
-
+"GitAPI": ""
 }
 
 [application]
@@ -20,8 +25,12 @@ config/description="This demo shows a traditional isometric view with depth sort
 
 A character can move around the level and will also slide around objects,
 as well as be occluded when standing in front or behind them."
-run/main_scene="res://dungeon.tscn"
+run/main_scene="res://lobby.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+gamestate="*res://gamestate.gd"
 
 [display]
 
@@ -32,7 +41,7 @@ window/stretch/aspect="expand"
 
 [gdnative]
 
-singletons=[  ]
+singletons=[ "res://git_api.gdnlib" ]
 
 [image_loader]
 

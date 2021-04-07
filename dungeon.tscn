@@ -107,3 +107,11 @@ position = Vector2( -299.828, 75.7516 )
 normal = ExtResource( 8 )
 pressed = ExtResource( 7 )
 action = "move_left_mobile"
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="spawn0" type="Position2D" parent="SpawnPoints"]
+position = Vector2( -303.928, 47.9131 )
+
+[node name="spawn1" type="Position2D" parent="SpawnPoints"]
+position = Vector2( -173.201, 48.1376 )
