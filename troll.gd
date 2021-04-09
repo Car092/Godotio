@@ -94,3 +94,6 @@ func _physics_process(_delta):
 	if motion:
 		#warning-ignore:return_value_discarded
 		move_and_collide(motion)
+		
+func set_player_name(new_name):
+	$Label.set_text(new_name)
