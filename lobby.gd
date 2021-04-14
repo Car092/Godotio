@@ -29,6 +29,22 @@ func _on_join_pressed():
 	var player_name = $Connect/Name.text
 	gamestate.join_game(ip, player_name)
 
+func _on_join_pressed_phono():
+	if $Connect/Name.text == "":
+		$Connect/ErrorLabel.text = "Invalid name!"
+		return
+
+	var ip = $Connect/IPAddress.text
+	if not ip.is_valid_ip_address():
+		$Connect/ErrorLabel.text = "Invalid IP address!"
+		return
+
+	$Connect/ErrorLabel.text = ""
+	$Connect/Host.disabled = true
+	$Connect/Join.disabled = true
+
+	var player_name = $Connect/Name.text
+	gamestate.join_game("192.168.1.93", player_name)
 
 func _on_connection_failed():
 	$Connect/Host.disabled = false

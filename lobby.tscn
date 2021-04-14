@@ -64,6 +64,9 @@ margin_bottom = 109.0
 size_flags_horizontal = 2
 size_flags_vertical = 2
 text = "127.0.0.1"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Host" type="Button" parent="Connect"]
 margin_left = 181.0
@@ -83,6 +86,18 @@ size_flags_horizontal = 2
 size_flags_vertical = 2
 text = "Join"
 
+[node name="JoinHardcode" type="Button" parent="Connect"]
+margin_left = 180.0
+margin_top = 120.0
+margin_right = 245.0
+margin_bottom = 140.0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+text = "X"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="ErrorLabel" type="Label" parent="Connect"]
 margin_left = 15.0
 margin_top = 125.0
@@ -100,3 +115,4 @@ size_flags_horizontal = 2
 size_flags_vertical = 2
 [connection signal="pressed" from="Connect/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Connect/Join" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="Connect/JoinHardcode" to="." method="_on_join_pressed_phono"]

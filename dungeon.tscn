@@ -44,6 +44,7 @@ points = PoolVector2Array( 32, 32, 0, 32, 0, 0, 32, 0 )
 1/z_index = 0
 
 [node name="Dungeon" type="Node2D"]
+position = Vector2( 392.443, 129.479 )
 
 [node name="Players" type="Node" parent="."]
 
@@ -57,4 +58,4 @@ tile_data = PoolIntArray( -393214, 0, 0, -393213, 0, 0, -327679, 0, 0, -327678, 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
 [node name="spawn0" type="Position2D" parent="SpawnPoints"]
-position = Vector2( -265.928, 74.9131 )
+position = Vector2( 16, 16 )

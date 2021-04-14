@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://troll.gd" type="Script" id=1]
 [ext_resource path="res://char32.png" type="Texture" id=2]
@@ -7,6 +7,12 @@
 [ext_resource path="res://char32Lr.png" type="Texture" id=5]
 [ext_resource path="res://ui/downMove.png" type="Texture" id=6]
 [ext_resource path="res://ui/downMove_pressed.png" type="Texture" id=7]
+[ext_resource path="res://ui/rightMove.png" type="Texture" id=8]
+[ext_resource path="res://ui/leftMove_pressed.png" type="Texture" id=9]
+[ext_resource path="res://ui/leftMove.png" type="Texture" id=10]
+[ext_resource path="res://ui/upMove_pressed.png" type="Texture" id=11]
+[ext_resource path="res://ui/upMove.png" type="Texture" id=12]
+[ext_resource path="res://ui/rightMove_pressed.png" type="Texture" id=13]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 15, 15 )
@@ -15,48 +21,54 @@ extents = Vector2( 15, 15 )
 script = ExtResource( 1 )
 
 [node name="WalkDown" type="Sprite" parent="."]
-position = Vector2( -4, -28 )
 texture = ExtResource( 2 )
 
 [node name="WalkUp" type="Sprite" parent="."]
-position = Vector2( -4, -28 )
 texture = ExtResource( 4 )
 
 [node name="WalkRight" type="Sprite" parent="."]
-position = Vector2( -4, -28 )
 texture = ExtResource( 3 )
 
 [node name="WalkLeft" type="Sprite" parent="."]
-position = Vector2( -4, -28 )
 texture = ExtResource( 5 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( -4.09474, -27 )
 shape = SubResource( 1 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
-current = true
 
 [node name="Label" type="Label" parent="."]
-margin_left = -22.7785
-margin_top = -59.3299
-margin_right = 17.2215
-margin_bottom = -45.3299
+margin_left = -20.2785
+margin_top = -29.3299
+margin_right = 19.7215
+margin_bottom = -15.3299
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="moveDownBtn" type="TouchScreenButton" parent="."]
+[node name="Controls" type="Node2D" parent="."]
+visible = false
+
+[node name="moveDownBtn" type="TouchScreenButton" parent="Controls"]
 position = Vector2( -223.03, 63.496 )
 normal = ExtResource( 6 )
 pressed = ExtResource( 7 )
 action = "move_down_mobile"
 
-[node name="TouchScreenButton4" type="TouchScreenButton" parent="."]
-position = Vector2( -223.03, 63.496 )
+[node name="moveUpBtn" type="TouchScreenButton" parent="Controls"]
+position = Vector2( -223.03, -36.0378 )
+normal = ExtResource( 12 )
+pressed = ExtResource( 11 )
+action = "move_up_mobile"
 
-[node name="TouchScreenButton3" type="TouchScreenButton" parent="."]
-position = Vector2( -223.03, 63.496 )
+[node name="moveLeftBtn" type="TouchScreenButton" parent="Controls"]
+position = Vector2( -284.136, 14.3591 )
+normal = ExtResource( 10 )
+pressed = ExtResource( 9 )
+action = "move_left_mobile"
 
-[node name="TouchScreenButton2" type="TouchScreenButton" parent="."]
-position = Vector2( -223.03, 63.496 )
+[node name="moveRightBtn" type="TouchScreenButton" parent="Controls"]
+position = Vector2( -163.814, 15.619 )
+normal = ExtResource( 8 )
+pressed = ExtResource( 13 )
+action = "move_right_mobile"
