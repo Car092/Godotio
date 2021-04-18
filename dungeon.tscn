@@ -1,47 +1,11 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://grass1.png" type="Texture" id=3]
-[ext_resource path="res://rock.png" type="Texture" id=4]
+[ext_resource path="res://dungeon.tres" type="TileSet" id=1]
+[ext_resource path="res://sprites/caliz.png" type="Texture" id=2]
+[ext_resource path="res://sprites/rat32r.png" type="Texture" id=3]
 
-[sub_resource type="ConvexPolygonShape2D" id=1]
-points = PoolVector2Array( 32, 32, 0, 32, 0, 0, 32, 0 )
-
-[sub_resource type="TileSet" id=2]
-0/name = "grass1.png 0"
-0/texture = ExtResource( 3 )
-0/tex_offset = Vector2( 0, 0 )
-0/modulate = Color( 1, 1, 1, 1 )
-0/region = Rect2( 0, 0, 32, 32 )
-0/tile_mode = 0
-0/occluder_offset = Vector2( 0, 0 )
-0/navigation_offset = Vector2( 0, 0 )
-0/shape_offset = Vector2( 0, 0 )
-0/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
-0/shape_one_way = false
-0/shape_one_way_margin = 0.0
-0/shapes = [  ]
-0/z_index = 0
-1/name = "rock.png 1"
-1/texture = ExtResource( 4 )
-1/tex_offset = Vector2( 0, 0 )
-1/modulate = Color( 1, 1, 1, 1 )
-1/region = Rect2( 0, 0, 32, 32 )
-1/tile_mode = 0
-1/occluder_offset = Vector2( 0, 0 )
-1/navigation_offset = Vector2( 0, 0 )
-1/shape_offset = Vector2( 0, 0 )
-1/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
-1/shape = SubResource( 1 )
-1/shape_one_way = false
-1/shape_one_way_margin = 1.0
-1/shapes = [ {
-"autotile_coord": Vector2( 0, 0 ),
-"one_way": false,
-"one_way_margin": 1.0,
-"shape": SubResource( 1 ),
-"shape_transform": Transform2D( 1, 0, 0, 1, 0, 0 )
-} ]
-1/z_index = 0
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 8.26465, 7.98593 )
 
 [node name="Dungeon" type="Node2D"]
 position = Vector2( 392.443, 129.479 )
@@ -50,12 +14,37 @@ position = Vector2( 392.443, 129.479 )
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2( -222.096, 96.2001 )
-tile_set = SubResource( 2 )
+tile_set = ExtResource( 1 )
 cell_size = Vector2( 32, 32 )
 format = 1
-tile_data = PoolIntArray( -393214, 0, 0, -393213, 0, 0, -327679, 0, 0, -327678, 0, 0, -327677, 0, 0, -327676, 0, 0, -327675, 0, 0, -327674, 0, 0, -327673, 0, 0, -327672, 0, 0, -262143, 0, 0, -262142, 0, 0, -262141, 0, 0, -262140, 0, 0, -262139, 0, 0, -262138, 0, 0, -262137, 0, 0, -262136, 0, 0, -262135, 0, 0, -131074, 0, 0, -131073, 0, 0, -196608, 0, 0, -196607, 0, 0, -196606, 0, 0, -196605, 0, 0, -196604, 0, 0, -196603, 0, 0, -196602, 0, 0, -196601, 0, 0, -196600, 0, 0, -196599, 0, 0, -65539, 0, 0, -65538, 0, 0, -65537, 0, 0, -131072, 1, 0, -131071, 0, 0, -131069, 0, 0, -131068, 0, 0, -131067, 0, 0, -131066, 0, 0, -131065, 0, 0, -131064, 0, 0, -131063, 0, 0, -3, 1, 0, -2, 0, 0, -1, 0, 0, -65535, 0, 0, -65534, 1, 0, 65533, 1, 0, 65534, 0, 0, 65535, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 0, 131069, 1, 0, 131070, 0, 0, 65539, 0, 0, 65540, 0, 0, 196605, 1, 0 )
+tile_data = PoolIntArray( -393214, 4, 0, -393213, 4, 0, -327679, 4, 0, -327678, 4, 0, -327677, 4, 0, -327676, 4, 0, -327675, 4, 0, -327674, 4, 0, -327673, 4, 0, -327672, 4, 0, -262143, 5, 0, -262142, 4, 0, -262141, 4, 0, -262140, 4, 0, -262139, 4, 0, -262138, 4, 0, -262137, 4, 0, -262136, 4, 0, -262135, 4, 0, -131074, 3, 0, -131073, 3, 0, -196608, 3, 0, -196607, 3, 0, -196606, 3, 0, -196605, 3, 0, -196604, 3, 0, -196603, 3, 0, -196602, 3, 0, -196601, 3, 0, -196600, 3, 0, -196599, 3, 0, -65539, 2, 0, -65538, 3, 0, -65537, 3, 0, -131072, 3, 0, -131071, 3, 0, -131070, 3, 0, -131069, 3, 0, -131068, 3, 0, -131067, 3, 0, -131066, 3, 0, -131065, 3, 0, -131064, 3, 0, -131063, 3, 0, -131062, 2, 0, -3, 1, 0, -2, 4, 0, -1, 4, 0, -65536, 4, 0, -65535, 4, 0, -65534, 4, 0, -65533, 4, 0, -65532, 4, 0, -65531, 4, 0, -65530, 4, 0, -65529, 4, 0, -65528, 4, 0, -65527, 4, 0, -65526, 1, 0, 65533, 1, 0, 65534, 4, 0, 65535, 4, 0, 0, 4, 0, 1, 4, 0, 2, 4, 0, 3, 4, 0, 4, 4, 0, 5, 4, 0, 6, 4, 0, 7, 4, 0, 8, 4, 0, 9, 4, 0, 10, 1, 0, 131069, 1, 0, 131070, 4, 0, 131071, 4, 0, 65536, 4, 0, 65537, 4, 0, 65538, 4, 0, 65539, 4, 0, 65540, 4, 0, 65541, 4, 0, 65542, 4, 0, 65543, 4, 0, 65544, 4, 0, 65545, 4, 0, 65546, 1, 0, 196605, 1, 0, 131082, 1, 0 )
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
 [node name="spawn0" type="Position2D" parent="SpawnPoints"]
 position = Vector2( 16, 16 )
+
+[node name="Stuff" type="Node2D" parent="."]
+
+[node name="Torch" type="StaticBody2D" parent="Stuff"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Stuff/Torch"]
+position = Vector2( -46.3791, -16.0543 )
+scale = Vector2( 1.67804, 1.92139 )
+shape = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="Stuff/Torch"]
+position = Vector2( -46.0633, -16.8301 )
+texture = ExtResource( 2 )
+
+[node name="Rat" type="StaticBody2D" parent="Stuff"]
+position = Vector2( -95.1366, -0.594604 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Stuff/Rat"]
+position = Vector2( -46.3791, -16.0543 )
+scale = Vector2( 1.67804, 1.92139 )
+shape = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="Stuff/Rat"]
+position = Vector2( -46.0633, -16.8301 )
+texture = ExtResource( 3 )

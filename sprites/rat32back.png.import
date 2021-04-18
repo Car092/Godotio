@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/char32.png-dd364b551d43bde7a509956866baa33e.stex"
+path="res://.import/rat32back.png-7c1cf49132979db62a612caabd591bd2.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://char32.png"
-dest_files=[ "res://.import/char32.png-dd364b551d43bde7a509956866baa33e.stex" ]
+source_file="res://sprites/rat32back.png"
+dest_files=[ "res://.import/rat32back.png-7c1cf49132979db62a612caabd591bd2.stex" ]
 
 [params]
 
