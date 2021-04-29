@@ -1,23 +1,23 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://dungeon.tres" type="TileSet" id=1]
 [ext_resource path="res://sprites/caliz.png" type="Texture" id=2]
 [ext_resource path="res://sprites/rat32r.png" type="Texture" id=3]
+[ext_resource path="res://TileMap.gd" type="Script" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 8.26465, 7.98593 )
 
 [node name="Dungeon" type="Node2D"]
-position = Vector2( 392.443, 129.479 )
-
-[node name="Players" type="Node" parent="."]
 
 [node name="TileMap" type="TileMap" parent="."]
-position = Vector2( -222.096, 96.2001 )
 tile_set = ExtResource( 1 )
 cell_size = Vector2( 32, 32 )
 format = 1
 tile_data = PoolIntArray( -393214, 4, 0, -393213, 4, 0, -327679, 4, 0, -327678, 4, 0, -327677, 4, 0, -327676, 4, 0, -327675, 4, 0, -327674, 4, 0, -327673, 4, 0, -327672, 4, 0, -262143, 5, 0, -262142, 4, 0, -262141, 4, 0, -262140, 4, 0, -262139, 4, 0, -262138, 4, 0, -262137, 4, 0, -262136, 4, 0, -262135, 4, 0, -131074, 3, 0, -131073, 3, 0, -196608, 3, 0, -196607, 3, 0, -196606, 3, 0, -196605, 3, 0, -196604, 3, 0, -196603, 3, 0, -196602, 3, 0, -196601, 3, 0, -196600, 3, 0, -196599, 3, 0, -65539, 2, 0, -65538, 3, 0, -65537, 3, 0, -131072, 3, 0, -131071, 3, 0, -131070, 3, 0, -131069, 3, 0, -131068, 3, 0, -131067, 3, 0, -131066, 3, 0, -131065, 3, 0, -131064, 3, 0, -131063, 3, 0, -131062, 2, 0, -3, 1, 0, -2, 4, 0, -1, 4, 0, -65536, 4, 0, -65535, 4, 0, -65534, 4, 0, -65533, 4, 0, -65532, 4, 0, -65531, 4, 0, -65530, 4, 0, -65529, 4, 0, -65528, 4, 0, -65527, 4, 0, -65526, 1, 0, 65533, 1, 0, 65534, 4, 0, 65535, 4, 0, 0, 4, 0, 1, 4, 0, 2, 4, 0, 3, 4, 0, 4, 4, 0, 5, 4, 0, 6, 4, 0, 7, 4, 0, 8, 4, 0, 9, 4, 0, 10, 1, 0, 131069, 1, 0, 131070, 4, 0, 131071, 4, 0, 65536, 4, 0, 65537, 4, 0, 65538, 4, 0, 65539, 4, 0, 65540, 4, 0, 65541, 4, 0, 65542, 4, 0, 65543, 4, 0, 65544, 4, 0, 65545, 4, 0, 65546, 1, 0, 196605, 1, 0, 131082, 1, 0 )
+script = ExtResource( 4 )
+
+[node name="Players" type="Node" parent="."]
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
@@ -25,8 +25,10 @@ tile_data = PoolIntArray( -393214, 4, 0, -393213, 4, 0, -327679, 4, 0, -327678, 
 position = Vector2( 16, 16 )
 
 [node name="Stuff" type="Node2D" parent="."]
+position = Vector2( 93.2342, 2.51984 )
 
 [node name="Torch" type="StaticBody2D" parent="Stuff"]
+position = Vector2( 32.128, -97.6439 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stuff/Torch"]
 position = Vector2( -46.3791, -16.0543 )

@@ -10,12 +10,17 @@ var walkLeftSprite = null
 var walkUpSprite = null
 var walkRightSprite = null
 
+var tile_map
+var point_path
+var virtual_position
+
 func _ready():
 	walkDownSprite = get_node("WalkDown")
 	walkLeftSprite = get_node("WalkLeft")
 	walkUpSprite = get_node("WalkUp")
 	walkRightSprite = get_node("WalkRight")
 	lastWalkSprite = walkDownSprite
+	tile_map = $"../../TileMap"
 	if get_tree().get_network_unique_id() == int(get_name()):
 		$Controls.show()
 		$Camera2D.current = true
@@ -42,13 +47,8 @@ func stopMoving():
 	self.movingDirection = Vector2()
 	self.position = self.virtualPosition
 
-func _physics_process(_delta):
+func _process(_delta):
 	if is_network_master():
-		var motion = Vector2()
-		
-		if reachedVirtualPosition() && movingDirection:
-			stopMoving()
-		
 		if movingDirection == Vector2(0, 0):
 			if gamestate.get_player_input_action(get_name()) == "move_right":
 				movingDirection = Vector2(1, 0)
@@ -66,43 +66,7 @@ func _physics_process(_delta):
 				movingDirection = Vector2(0, 1)
 				virtualPosition.y = position.y + TILE_SIZE
 				virtualPosition.x = position.x
-		
-		motion = movingDirection * MOTION_SPEED * _delta
-		
-		walkDownSprite.visible = false
-		walkLeftSprite.visible = false
-		walkRightSprite.visible = false
-		walkUpSprite.visible = false
-		
-		if lastWalkSprite != null:
-			lastWalkSprite.visible = true
-		
-		if move_and_collide(motion, true, true, true):
-			virtualPosition = position
-			movingDirection = Vector2()
-			motion = Vector2()
-		
-		if movingDirection.x == 1:
-			walkRightSprite.visible = true
-			lastWalkSprite = walkRightSprite
-		if movingDirection.x == -1:
-			walkLeftSprite.visible = true
-			lastWalkSprite = walkLeftSprite
-		if movingDirection.y == 1:
-			walkDownSprite.visible = true
-			lastWalkSprite = walkDownSprite
-		if movingDirection.y == -1:
-			walkUpSprite.visible = true
-			lastWalkSprite = walkUpSprite
-		
-		if motion:
-			#warning-ignore:return_value_discarded
-			move_and_collide(motion)
-			
-		gamestate.set_player_position(get_name(), self.position)
-		gamestate.set_player_moving_direction(get_name(), self.movingDirection)
-		gamestate.set_player_virtual_pos(get_name(), self.virtualPosition)
-			
+				
 	elif get_tree().get_network_unique_id() == int(get_name()):
 		if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
 			gamestate.rpc_id(1, "set_player_input", "move_right")
@@ -114,9 +78,53 @@ func _physics_process(_delta):
 			gamestate.rpc_id(1, "set_player_input", "move_down")
 		else:
 			gamestate.rpc_id(1, "set_player_input", "")
+			
+		if movingDirection == Vector2(0, 0):
+			if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
+				movingDirection = Vector2(1, 0)
+				virtualPosition.x = position.x + TILE_SIZE
+				virtualPosition.y = position.y
+			if Input.get_action_strength("move_left") || Input.get_action_strength("move_left_mobile"):
+				movingDirection = Vector2(-1, 0)
+				virtualPosition.x = position.x - TILE_SIZE
+				virtualPosition.y = position.y
+			if Input.get_action_strength("move_up") || Input.get_action_strength("move_up_mobile"):
+				movingDirection = Vector2(0, -1)
+				virtualPosition.y = position.y - TILE_SIZE
+				virtualPosition.x = position.x
+			if Input.get_action_strength("move_down") || Input.get_action_strength("move_down_mobile"):
+				movingDirection = Vector2(0, 1)
+				virtualPosition.y = position.y + TILE_SIZE
+				virtualPosition.x = position.x
 		
+func _physics_process(_delta):
+	if is_network_master():
+		var motion = Vector2()
+		
+		if reachedVirtualPosition() && movingDirection:
+			stopMoving()
+		
+		motion = movingDirection * MOTION_SPEED * _delta
+		
+		reset_sprites()
+		
+		if move_and_collide(motion, true, true, true):
+			virtualPosition = position
+			movingDirection = Vector2()
+			motion = Vector2()
+		
+		set_sprite_direction()
+		
+		if motion:
+			#warning-ignore:return_value_discarded
+			move_and_collide(motion)
+			
+		gamestate.set_player_position(get_name(), self.position)
+		gamestate.set_player_moving_direction(get_name(), self.movingDirection)
+		gamestate.set_player_virtual_pos(get_name(), self.virtualPosition)
+			
+	elif get_tree().get_network_unique_id() == int(get_name()):
 		move_local(_delta)
-		
 	else:
 		update_others()
 		
@@ -129,57 +137,26 @@ func move_local(_delta):
 	if reachedVirtualPosition() && movingDirection:
 		stopMoving()
 	
-	if movingDirection == Vector2(0, 0):
-		if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
-			movingDirection = Vector2(1, 0)
-			virtualPosition.x = position.x + TILE_SIZE
-			virtualPosition.y = position.y
-		if Input.get_action_strength("move_left") || Input.get_action_strength("move_left_mobile"):
-			movingDirection = Vector2(-1, 0)
-			virtualPosition.x = position.x - TILE_SIZE
-			virtualPosition.y = position.y
-		if Input.get_action_strength("move_up") || Input.get_action_strength("move_up_mobile"):
-			movingDirection = Vector2(0, -1)
-			virtualPosition.y = position.y - TILE_SIZE
-			virtualPosition.x = position.x
-		if Input.get_action_strength("move_down") || Input.get_action_strength("move_down_mobile"):
-			movingDirection = Vector2(0, 1)
-			virtualPosition.y = position.y + TILE_SIZE
-			virtualPosition.x = position.x
-	
 	motion = movingDirection * MOTION_SPEED * _delta
 	
-	walkDownSprite.visible = false
-	walkLeftSprite.visible = false
-	walkRightSprite.visible = false
-	walkUpSprite.visible = false
-	
-	if lastWalkSprite != null:
-		lastWalkSprite.visible = true
+	reset_sprites()
 	
 	if move_and_collide(motion, true, true, true):
 		virtualPosition = position
 		movingDirection = Vector2()
 		motion = Vector2()
 	
-	if movingDirection.x == 1:
-		walkRightSprite.visible = true
-		lastWalkSprite = walkRightSprite
-	if movingDirection.x == -1:
-		walkLeftSprite.visible = true
-		lastWalkSprite = walkLeftSprite
-	if movingDirection.y == 1:
-		walkDownSprite.visible = true
-		lastWalkSprite = walkDownSprite
-	if movingDirection.y == -1:
-		walkUpSprite.visible = true
-		lastWalkSprite = walkUpSprite
+	set_sprite_direction()
 	
 	if motion:
 		#warning-ignore:return_value_discarded
 		move_and_collide(motion)
 		
 func update_others():
+	reset_sprites()
+	set_sprite_direction()
+		
+func reset_sprites():
 	walkDownSprite.visible = false
 	walkLeftSprite.visible = false
 	walkRightSprite.visible = false
@@ -188,6 +165,7 @@ func update_others():
 	if lastWalkSprite != null:
 		lastWalkSprite.visible = true
 	
+func set_sprite_direction():
 	if movingDirection.x == 1:
 		walkRightSprite.visible = true
 		lastWalkSprite = walkRightSprite
