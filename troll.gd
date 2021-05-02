@@ -2,7 +2,7 @@ extends Node2D
 
 const MOTION_SPEED = 64 # Pixels/second.
 const TILE_SIZE = 32
-var virtualPosition = position
+var virtualPosition
 var movingDirection = Vector2(0, 0)
 var lastWalkSprite = null
 var walkDownSprite = null
@@ -14,6 +14,7 @@ var tile_map
 var point_path
 
 func _ready():
+	virtualPosition = position
 	walkDownSprite = get_node("WalkDown")
 	walkLeftSprite = get_node("WalkLeft")
 	walkUpSprite = get_node("WalkUp")
@@ -24,52 +25,40 @@ func _ready():
 		$Controls.show()
 		$Camera2D.current = true
 
-func reachedVirtualPosition():
-	if movingDirection.x == 1:
-		if position.x >= virtualPosition.x:
-			return true
-		return false
-	if movingDirection.x == -1:
-		if position.x <= virtualPosition.x:
-			return true
-		return false
-	if movingDirection.y == 1:
-		if position.y >= virtualPosition.y:
-			return true
-		return false
-	if movingDirection.y == -1:
-		if position.y <= virtualPosition.y:
-			return true
-		return false
-
-func stopMovingReached():
-	self.movingDirection = Vector2()
-	self.position = self.virtualPosition
-
+func _unhandled_input(event):
+	if get_tree().get_network_unique_id() == int(get_name()):
+		if not event.is_action_pressed("click"):
+			return
+		gamestate.rpc_id(1, "set_player_clicked", get_global_mouse_position())
+		set_point_path()
 func _process(_delta):
 	if is_network_master():
-		if reachedVirtualPosition() && movingDirection:
-			stopMovingReached()
-			
-		if reachedVirtualPosition() || !movingDirection:
-			if gamestate.get_player_input_action(get_name()) == "move_right":
-				movingDirection = Vector2(1, 0)
-				virtualPosition.x = position.x + TILE_SIZE
-				virtualPosition.y = position.y
-			if gamestate.get_player_input_action(get_name()) == "move_left":
-				movingDirection = Vector2(-1, 0)
-				virtualPosition.x = position.x - TILE_SIZE
-				virtualPosition.y = position.y
-			if gamestate.get_player_input_action(get_name()) == "move_up":
-				movingDirection = Vector2(0, -1)
-				virtualPosition.y = position.y - TILE_SIZE
-				virtualPosition.x = position.x
-			if gamestate.get_player_input_action(get_name()) == "move_down":
-				movingDirection = Vector2(0, 1)
-				virtualPosition.y = position.y + TILE_SIZE
-				virtualPosition.x = position.x
+		if gamestate.get_player_clicked(get_name()):
+			set_point_path()
+			gamestate.unset_player_clicked(get_name())
+		if !point_path:
+			if reachedVirtualPosition() && movingDirection:
+				stopMovingReached()
 				
-			request_square()
+			if reachedVirtualPosition() || !movingDirection:
+				if gamestate.get_player_input_action(get_name()) == "move_right":
+					movingDirection = Vector2(1, 0)
+					virtualPosition.x = position.x + TILE_SIZE
+					virtualPosition.y = position.y
+				if gamestate.get_player_input_action(get_name()) == "move_left":
+					movingDirection = Vector2(-1, 0)
+					virtualPosition.x = position.x - TILE_SIZE
+					virtualPosition.y = position.y
+				if gamestate.get_player_input_action(get_name()) == "move_up":
+					movingDirection = Vector2(0, -1)
+					virtualPosition.y = position.y - TILE_SIZE
+					virtualPosition.x = position.x
+				if gamestate.get_player_input_action(get_name()) == "move_down":
+					movingDirection = Vector2(0, 1)
+					virtualPosition.y = position.y + TILE_SIZE
+					virtualPosition.x = position.x
+					
+				request_square()
 			
 	elif get_tree().get_network_unique_id() == int(get_name()):
 		if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
@@ -83,40 +72,47 @@ func _process(_delta):
 		else:
 			gamestate.rpc_id(1, "set_player_input", "")
 			
-		if reachedVirtualPosition() && movingDirection:
-			stopMovingReached()
-		
-		if reachedVirtualPosition():
-			if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
-				movingDirection = Vector2(1, 0)
-				virtualPosition.x = position.x + TILE_SIZE
-				virtualPosition.y = position.y
-			if Input.get_action_strength("move_left") || Input.get_action_strength("move_left_mobile"):
-				movingDirection = Vector2(-1, 0)
-				virtualPosition.x = position.x - TILE_SIZE
-				virtualPosition.y = position.y
-			if Input.get_action_strength("move_up") || Input.get_action_strength("move_up_mobile"):
-				movingDirection = Vector2(0, -1)
-				virtualPosition.y = position.y - TILE_SIZE
-				virtualPosition.x = position.x
-			if Input.get_action_strength("move_down") || Input.get_action_strength("move_down_mobile"):
-				movingDirection = Vector2(0, 1)
-				virtualPosition.y = position.y + TILE_SIZE
-				virtualPosition.x = position.x
-				
-			request_square()
+		if !point_path:
+			if reachedVirtualPosition() && movingDirection:
+				stopMovingReached()
+			
+			if reachedVirtualPosition() || !movingDirection:
+				if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
+					movingDirection = Vector2(1, 0)
+					virtualPosition.x = position.x + TILE_SIZE
+					virtualPosition.y = position.y
+				if Input.get_action_strength("move_left") || Input.get_action_strength("move_left_mobile"):
+					movingDirection = Vector2(-1, 0)
+					virtualPosition.x = position.x - TILE_SIZE
+					virtualPosition.y = position.y
+				if Input.get_action_strength("move_up") || Input.get_action_strength("move_up_mobile"):
+					movingDirection = Vector2(0, -1)
+					virtualPosition.y = position.y - TILE_SIZE
+					virtualPosition.x = position.x
+				if Input.get_action_strength("move_down") || Input.get_action_strength("move_down_mobile"):
+					movingDirection = Vector2(0, 1)
+					virtualPosition.y = position.y + TILE_SIZE
+					virtualPosition.x = position.x
+					
+				request_square()
 			
 func _physics_process(_delta):
 	if is_network_master():
-		move_delta(_delta)
+		if !point_path:
+			move_delta(_delta)
+		else:
+			move_along_path(_delta)
 		gamestate.set_player_position(get_name(), self.position)
 		gamestate.set_player_moving_direction(get_name(), self.movingDirection)
 		gamestate.set_player_virtual_pos(get_name(), self.virtualPosition)
 			
 	elif get_tree().get_network_unique_id() == int(get_name()):
-		move_delta(_delta)
-	else:
-		set_sprite_direction()
+		if !point_path:
+			move_delta(_delta)
+		else:
+			move_along_path(_delta)
+	
+	set_sprite_direction()
 		
 func set_player_name(new_name):
 	$Label.set_text(new_name)
@@ -151,7 +147,78 @@ func request_square():
 func move_delta(_delta):
 	var motion = Vector2()
 	motion = movingDirection * MOTION_SPEED * _delta
-	set_sprite_direction()
+
 	if motion:
 		#warning-ignore:return_value_discarded
 		translate(motion)
+		
+func reachedVirtualPosition():
+	if movingDirection.x == 1:
+		if position.x >= virtualPosition.x:
+			return true
+		return false
+	if movingDirection.x == -1:
+		if position.x <= virtualPosition.x:
+			return true
+		return false
+	if movingDirection.y == 1:
+		if position.y >= virtualPosition.y:
+			return true
+		return false
+	if movingDirection.y == -1:
+		if position.y <= virtualPosition.y:
+			return true
+		return false
+
+func stopMovingReached():
+	self.movingDirection = Vector2()
+	self.position = self.virtualPosition
+	
+func move_along_path(_delta):
+	var distance = MOTION_SPEED * _delta
+	var last_point = position
+
+	if virtualPosition != position && virtualPosition != point_path[0]:
+		var distance_between_points = position.distance_to(virtualPosition)
+		var direction_to = position.direction_to(virtualPosition)
+		var diag_factor = get_diag_factor(direction_to)
+		if distance <= distance_between_points:
+			self.position = self.position + (direction_to * distance * diag_factor)
+			return
+		self.position = virtualPosition
+		return
+	while point_path.size():
+		var distance_between_points = last_point.distance_to(point_path[0])
+		var direction_to = last_point.direction_to(point_path[0])
+		var diag_factor = get_diag_factor(direction_to)
+		# The position to move to falls between two points.
+		if distance <= distance_between_points:
+			self.virtualPosition = point_path[0]
+			self.movingDirection = direction_to
+			self.position = last_point + (direction_to * distance * diag_factor)
+			return
+		# The position is past the end of the segment.
+		distance -= distance_between_points
+		last_point = point_path[0]
+		point_path.remove(0)
+	# The character reached the end of the path.
+	self.position = last_point
+	self.point_path = null
+	
+func get_diag_factor(direction):
+	var diag_factor = 1
+	if abs(direction[0]) != 1 && abs(direction[1]) != 1:
+		diag_factor = 0.75
+	return diag_factor
+	
+func set_point_path():
+	var fromPoint = tile_map.astar.get_closest_point(self.position)
+	var mouse_pos
+	if is_network_master():
+		mouse_pos = gamestate.get_player_clicked(get_name())
+	elif get_tree().get_network_unique_id() == int(get_name()):
+		mouse_pos = get_global_mouse_position()
+	var toPoint = tile_map.astar.get_closest_point(mouse_pos)
+	point_path = tile_map.astar.get_point_path(fromPoint, toPoint)
+	point_path.remove(0)
+

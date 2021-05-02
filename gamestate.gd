@@ -59,14 +59,14 @@ remote func add_player(playerData):
 	player.set_player_name(playerData.name)
 	world.get_node("Players").add_child(player)
 
-remote func add_current_players(players):
+remote func add_current_players(current_players):
 	var world = get_tree().get_root().get_node("Dungeon")
 	var player_scene = load("res://troll.tscn")
-	for p_id in players:
+	for p_id in current_players:
 		var player = player_scene.instance()
 		player.set_name(str(p_id))
-		player.position = players[p_id].position
-		player.set_player_name(players[p_id].name)
+		player.position = current_players[p_id].position
+		player.set_player_name(current_players[p_id].name)
 		world.get_node("Players").add_child(player)
 	
 func join_game(ip, new_player_name):
@@ -86,6 +86,7 @@ remote func register_player(new_player_name):
 	players[id] = {
 		"name": new_player_name,
 		"position": spawnPosition,
+		"clicked": false,
 		"input_action": "",
 		"moving_direction": Vector2(),
 		"virtual_position": spawnPosition
@@ -118,6 +119,16 @@ remote func set_player_input(input_action):
 	var id = get_tree().get_rpc_sender_id()
 	players[id].input_action = input_action
 	
+remote func set_player_clicked(point):
+	var id = get_tree().get_rpc_sender_id()
+	players[id].clicked = point
+
+func unset_player_clicked(id):
+	players[int(id)].clicked = false
+
+func get_player_clicked(id):
+	return players[int(id)].clicked
+
 func get_player_input_action(id):
 	return players[int(id)].input_action
 
