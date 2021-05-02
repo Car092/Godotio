@@ -1,18 +1,26 @@
 extends TileMap
 
 var astar = load("res://AStar2d_diag.gd").new()
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+var squares = {}
 
-
-# Called when the node enters the scene tree for the first time.
+# TODO: disable static squares or remove from astar
 func _ready():
 	var id = 0
 	for cell in get_used_cells():
 		astar.add_point(id, map_to_world(cell) + Vector2(16, 16))
+		if (get_cell(cell[0], cell[1]) > -1) && !is_static_square(cell):
+			squares[str(cell)] = {"occupied": false}
+		else:
+			squares[str(cell)] = {"occupied": true}
 		id += 1
 	id = 0
+
+	var stuff = get_node("Stuff").get_children()
+	for thing in stuff:
+		if thing.type == "static_object":
+			var cell = world_to_map(thing.position)
+			squares[str(cell)].occupied = true
+
 	for cell in get_used_cells():
 		var top_cell_coords = cell + Vector2(0, -1)
 		var top_cell_tile = get_cell(top_cell_coords[0], top_cell_coords[1])
@@ -66,7 +74,12 @@ func _ready():
 			
 		id += 1
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func request_square(position):
+	if squares && squares.size() > 0:
+		var cell = world_to_map(position)
+		return !squares[str(cell)].occupied
+	return true
 
+func is_static_square(cell):
+	if get_cell(cell[0], cell[1]) in [1]:
+		return true

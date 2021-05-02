@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends Node2D
 
 const MOTION_SPEED = 64 # Pixels/second.
 const TILE_SIZE = 32
@@ -12,7 +12,6 @@ var walkRightSprite = null
 
 var tile_map
 var point_path
-var virtual_position
 
 func _ready():
 	walkDownSprite = get_node("WalkDown")
@@ -43,13 +42,16 @@ func reachedVirtualPosition():
 			return true
 		return false
 
-func stopMoving():
+func stopMovingReached():
 	self.movingDirection = Vector2()
 	self.position = self.virtualPosition
 
 func _process(_delta):
 	if is_network_master():
-		if movingDirection == Vector2(0, 0):
+		if reachedVirtualPosition() && movingDirection:
+			stopMovingReached()
+			
+		if reachedVirtualPosition() || !movingDirection:
 			if gamestate.get_player_input_action(get_name()) == "move_right":
 				movingDirection = Vector2(1, 0)
 				virtualPosition.x = position.x + TILE_SIZE
@@ -67,6 +69,8 @@ func _process(_delta):
 				virtualPosition.y = position.y + TILE_SIZE
 				virtualPosition.x = position.x
 				
+			request_square()
+			
 	elif get_tree().get_network_unique_id() == int(get_name()):
 		if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
 			gamestate.rpc_id(1, "set_player_input", "move_right")
@@ -79,7 +83,10 @@ func _process(_delta):
 		else:
 			gamestate.rpc_id(1, "set_player_input", "")
 			
-		if movingDirection == Vector2(0, 0):
+		if reachedVirtualPosition() && movingDirection:
+			stopMovingReached()
+		
+		if reachedVirtualPosition():
 			if Input.get_action_strength("move_right") || Input.get_action_strength("move_right_mobile"):
 				movingDirection = Vector2(1, 0)
 				virtualPosition.x = position.x + TILE_SIZE
@@ -96,67 +103,25 @@ func _process(_delta):
 				movingDirection = Vector2(0, 1)
 				virtualPosition.y = position.y + TILE_SIZE
 				virtualPosition.x = position.x
-		
+				
+			request_square()
+			
 func _physics_process(_delta):
 	if is_network_master():
-		var motion = Vector2()
-		
-		if reachedVirtualPosition() && movingDirection:
-			stopMoving()
-		
-		motion = movingDirection * MOTION_SPEED * _delta
-		
-		reset_sprites()
-		
-		if move_and_collide(motion, true, true, true):
-			virtualPosition = position
-			movingDirection = Vector2()
-			motion = Vector2()
-		
-		set_sprite_direction()
-		
-		if motion:
-			#warning-ignore:return_value_discarded
-			move_and_collide(motion)
-			
+		move_delta(_delta)
 		gamestate.set_player_position(get_name(), self.position)
 		gamestate.set_player_moving_direction(get_name(), self.movingDirection)
 		gamestate.set_player_virtual_pos(get_name(), self.virtualPosition)
 			
 	elif get_tree().get_network_unique_id() == int(get_name()):
-		move_local(_delta)
+		move_delta(_delta)
 	else:
-		update_others()
+		set_sprite_direction()
 		
 func set_player_name(new_name):
 	$Label.set_text(new_name)
-	
-func move_local(_delta):
-	var motion = Vector2()
-	
-	if reachedVirtualPosition() && movingDirection:
-		stopMoving()
-	
-	motion = movingDirection * MOTION_SPEED * _delta
-	
-	reset_sprites()
-	
-	if move_and_collide(motion, true, true, true):
-		virtualPosition = position
-		movingDirection = Vector2()
-		motion = Vector2()
-	
-	set_sprite_direction()
-	
-	if motion:
-		#warning-ignore:return_value_discarded
-		move_and_collide(motion)
-		
-func update_others():
-	reset_sprites()
-	set_sprite_direction()
-		
-func reset_sprites():
+			
+func set_sprite_direction():
 	walkDownSprite.visible = false
 	walkLeftSprite.visible = false
 	walkRightSprite.visible = false
@@ -164,8 +129,7 @@ func reset_sprites():
 	
 	if lastWalkSprite != null:
 		lastWalkSprite.visible = true
-	
-func set_sprite_direction():
+		
 	if movingDirection.x == 1:
 		walkRightSprite.visible = true
 		lastWalkSprite = walkRightSprite
@@ -178,3 +142,16 @@ func set_sprite_direction():
 	if movingDirection.y == -1:
 		walkUpSprite.visible = true
 		lastWalkSprite = walkUpSprite
+		
+func request_square():
+	if !tile_map.request_square(virtualPosition):
+		self.movingDirection = Vector2()
+		self.virtualPosition = self.position
+		
+func move_delta(_delta):
+	var motion = Vector2()
+	motion = movingDirection * MOTION_SPEED * _delta
+	set_sprite_direction()
+	if motion:
+		#warning-ignore:return_value_discarded
+		translate(motion)
