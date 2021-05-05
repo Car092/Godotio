@@ -1,6 +1,6 @@
 extends Node2D
 
-const MOTION_SPEED = 64 # Pixels/second.
+const MOTION_SPEED = 128 # Pixels/second.
 const TILE_SIZE = 32
 var virtualPosition
 var movingDirection = Vector2(0, 0)
@@ -177,7 +177,6 @@ func stopMovingReached():
 func move_along_path(_delta):
 	var distance = MOTION_SPEED * _delta
 	var last_point = position
-
 	if virtualPosition != position && virtualPosition != point_path[0]:
 		var distance_between_points = position.distance_to(virtualPosition)
 		var direction_to = position.direction_to(virtualPosition)
@@ -204,6 +203,8 @@ func move_along_path(_delta):
 	# The character reached the end of the path.
 	self.position = last_point
 	self.point_path = null
+	if is_network_master():
+		gamestate.set_player_point_path(get_name(), self.point_path)
 	
 func get_diag_factor(direction):
 	var diag_factor = 1
@@ -220,5 +221,7 @@ func set_point_path():
 		mouse_pos = get_global_mouse_position()
 	var toPoint = tile_map.astar.get_closest_point(mouse_pos)
 	point_path = tile_map.astar.get_point_path(fromPoint, toPoint)
+	if is_network_master():
+		gamestate.set_player_point_path(get_name(), self.point_path)
 	point_path.remove(0)
 

@@ -47,6 +47,7 @@ remote func refresh_players(refreshed_players):
 		player.position = refreshed_players[p_id].position
 		player.virtualPosition = refreshed_players[p_id].virtual_position
 		player.movingDirection = refreshed_players[p_id].moving_direction
+		player.point_path = refreshed_players[p_id].point_path
 
 remote func add_player(playerData):
 	var world = get_tree().get_root().get_node("Dungeon")
@@ -89,7 +90,8 @@ remote func register_player(new_player_name):
 		"clicked": false,
 		"input_action": "",
 		"moving_direction": Vector2(),
-		"virtual_position": spawnPosition
+		"virtual_position": spawnPosition,
+		"point_path": null
 	}
 	print(players)
 	
@@ -134,6 +136,9 @@ func get_player_input_action(id):
 
 func set_player_position(id, position):
 	players[int(id)].position = position
+
+func set_player_point_path(id, point_path):
+	players[int(id)].point_path = point_path
 	
 func set_player_moving_direction(id, move_dir):
 	players[int(id)].moving_direction = move_dir
