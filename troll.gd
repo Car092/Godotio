@@ -1,6 +1,6 @@
 extends Node2D
 
-const MOTION_SPEED = 128 # Pixels/second.
+const MOTION_SPEED = 64 # Pixels/second.
 const TILE_SIZE = 32
 var virtualPosition
 var movingDirection = Vector2(0, 0)
@@ -27,14 +27,19 @@ func _ready():
 
 func _unhandled_input(event):
 	if get_tree().get_network_unique_id() == int(get_name()):
-		if not event.is_action_pressed("click"):
+		if not event.is_action_pressed("click") && not event is InputEventScreenTouch:
 			return
-		gamestate.rpc_id(1, "set_player_clicked", get_global_mouse_position())
-		set_point_path()
+		var touch_pos
+		if event.is_action_pressed("click"):
+			gamestate.rpc_id(1, "set_player_clicked", get_global_mouse_position())
+		if event is InputEventScreenTouch && event.pressed && event.index == 0:
+			touch_pos = get_canvas_transform().affine_inverse().xform(event.position)    
+			gamestate.rpc_id(1, "set_player_clicked", touch_pos)
+		set_point_path(touch_pos)
 func _process(_delta):
 	if is_network_master():
 		if gamestate.get_player_clicked(get_name()):
-			set_point_path()
+			set_point_path(null)
 			gamestate.unset_player_clicked(get_name())
 		if !point_path:
 			if reachedVirtualPosition() && movingDirection:
@@ -105,13 +110,13 @@ func _physics_process(_delta):
 		gamestate.set_player_position(get_name(), self.position)
 		gamestate.set_player_moving_direction(get_name(), self.movingDirection)
 		gamestate.set_player_virtual_pos(get_name(), self.virtualPosition)
+		gamestate.set_player_point_path(get_name(), self.point_path)
 			
 	elif get_tree().get_network_unique_id() == int(get_name()):
 		if !point_path:
 			move_delta(_delta)
 		else:
 			move_along_path(_delta)
-	
 	set_sprite_direction()
 		
 func set_player_name(new_name):
@@ -203,8 +208,6 @@ func move_along_path(_delta):
 	# The character reached the end of the path.
 	self.position = last_point
 	self.point_path = null
-	if is_network_master():
-		gamestate.set_player_point_path(get_name(), self.point_path)
 	
 func get_diag_factor(direction):
 	var diag_factor = 1
@@ -212,16 +215,18 @@ func get_diag_factor(direction):
 		diag_factor = 0.75
 	return diag_factor
 	
-func set_point_path():
+func set_point_path(touch_pos):
 	var fromPoint = tile_map.astar.get_closest_point(self.position)
-	var mouse_pos
+	var target_pos
 	if is_network_master():
-		mouse_pos = gamestate.get_player_clicked(get_name())
+		target_pos = gamestate.get_player_clicked(get_name())
 	elif get_tree().get_network_unique_id() == int(get_name()):
-		mouse_pos = get_global_mouse_position()
-	var toPoint = tile_map.astar.get_closest_point(mouse_pos)
+		target_pos = touch_pos if touch_pos else get_global_mouse_position()
+	if !tile_map.request_square(target_pos):
+		return
+	var toPoint = tile_map.astar.get_closest_point(target_pos)
 	point_path = tile_map.astar.get_point_path(fromPoint, toPoint)
+	point_path.remove(0)
 	if is_network_master():
 		gamestate.set_player_point_path(get_name(), self.point_path)
-	point_path.remove(0)
 
