@@ -22,7 +22,8 @@ func _ready():
 	lastWalkSprite = walkDownSprite
 	tile_map = $"../../TileMap"
 	if get_tree().get_network_unique_id() == int(get_name()):
-		$Controls.show()
+		if OS.get_name() == "Android":
+			$Controls.show()
 		$Camera2D.current = true
 
 func _unhandled_input(event):
@@ -31,15 +32,17 @@ func _unhandled_input(event):
 			return
 		var touch_pos
 		if event.is_action_pressed("click"):
-			gamestate.rpc_id(1, "set_player_clicked", get_global_mouse_position())
+			touch_pos = get_global_mouse_position()
+			gamestate.rpc_id(1, "set_player_clicked", touch_pos)
 		if event is InputEventScreenTouch && event.pressed && event.index == 0:
 			touch_pos = get_canvas_transform().affine_inverse().xform(event.position)    
 			gamestate.rpc_id(1, "set_player_clicked", touch_pos)
 		set_point_path(touch_pos)
+		
 func _process(_delta):
 	if is_network_master():
 		if gamestate.get_player_clicked(get_name()):
-			set_point_path(null)
+			set_point_path(gamestate.get_player_clicked(get_name()))
 			gamestate.unset_player_clicked(get_name())
 		if !point_path:
 			if reachedVirtualPosition() && movingDirection:
@@ -217,16 +220,13 @@ func get_diag_factor(direction):
 	
 func set_point_path(touch_pos):
 	var fromPoint = tile_map.astar.get_closest_point(self.position)
-	var target_pos
-	if is_network_master():
-		target_pos = gamestate.get_player_clicked(get_name())
-	elif get_tree().get_network_unique_id() == int(get_name()):
-		target_pos = touch_pos if touch_pos else get_global_mouse_position()
-	if !tile_map.request_square(target_pos):
+	if !tile_map.request_square(touch_pos):
 		return
-	var toPoint = tile_map.astar.get_closest_point(target_pos)
+	var toPoint = tile_map.astar.get_closest_point(touch_pos)
 	point_path = tile_map.astar.get_point_path(fromPoint, toPoint)
 	point_path.remove(0)
 	if is_network_master():
 		gamestate.set_player_point_path(get_name(), self.point_path)
 
+func _on_move_pressed():
+	get_tree().set_input_as_handled()
